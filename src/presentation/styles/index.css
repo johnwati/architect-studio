@@ -1,0 +1,617 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    color: #f1f5f9;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+  
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-dark {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .border-gradient {
+    border-image: linear-gradient(135deg, #8b5cf6, #3b82f6) 1;
+  }
+}
+
+/* SDD Preview Content Styles - Full HTML Rendering */
+.sdd-preview-content {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #1f2937 !important;
+  max-width: 100%;
+  background-color: white !important;
+}
+
+/* Headings */
+.sdd-preview-content h1,
+.sdd-preview-content h2,
+.sdd-preview-content h3,
+.sdd-preview-content h4,
+.sdd-preview-content h5,
+.sdd-preview-content h6 {
+  font-weight: 700;
+  color: #111827;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  line-height: 1.3;
+}
+
+.sdd-preview-content h1 {
+  font-size: 2em;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5em;
+}
+
+.sdd-preview-content h2 {
+  font-size: 1.75em;
+  margin-top: 2em;
+}
+
+.sdd-preview-content h3 {
+  font-size: 1.5em;
+  margin-top: 1.5em;
+}
+
+.sdd-preview-content h4 {
+  font-size: 1.25em;
+}
+
+.sdd-preview-content h5 {
+  font-size: 1.1em;
+}
+
+.sdd-preview-content h6 {
+  font-size: 1em;
+}
+
+/* Paragraphs */
+.sdd-preview-content p {
+  margin-bottom: 1em;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+.sdd-preview-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Lists */
+.sdd-preview-content ul,
+.sdd-preview-content ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.sdd-preview-content ul {
+  list-style-type: disc;
+}
+
+.sdd-preview-content ol {
+  list-style-type: decimal;
+}
+
+.sdd-preview-content li {
+  margin: 0.5em 0;
+  line-height: 1.7;
+}
+
+.sdd-preview-content ul ul,
+.sdd-preview-content ol ol,
+.sdd-preview-content ul ol,
+.sdd-preview-content ol ul {
+  margin: 0.5em 0;
+}
+
+/* Links */
+.sdd-preview-content a {
+  color: #dc2626;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.sdd-preview-content a:hover {
+  color: #b91c1c;
+}
+
+/* Strong and Emphasis */
+.sdd-preview-content strong,
+.sdd-preview-content b {
+  font-weight: 700;
+  color: #111827;
+}
+
+.sdd-preview-content em,
+.sdd-preview-content i {
+  font-style: italic;
+}
+
+/* Code */
+.sdd-preview-content code {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+  color: #dc2626;
+}
+
+.sdd-preview-content pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 1em;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5em 0;
+  line-height: 1.6;
+}
+
+.sdd-preview-content pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+/* Blockquotes */
+.sdd-preview-content blockquote {
+  border-left: 4px solid #dc2626;
+  padding-left: 1em;
+  margin: 1.5em 0;
+  color: #6b7280;
+  font-style: italic;
+  background-color: #f9fafb;
+  padding: 1em;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* Tables - Sleek and Elegant */
+.sdd-preview-content table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2em 0;
+  font-size: 0.95em;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.sdd-preview-content table th,
+.sdd-preview-content table td {
+  padding: 1em 1.25em;
+  text-align: left;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.6);
+  transition: all 0.2s ease;
+}
+
+.sdd-preview-content table th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  font-weight: 600;
+  color: #1e293b;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e2e8f0;
+  position: relative;
+}
+
+.sdd-preview-content table th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.sdd-preview-content table th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.sdd-preview-content table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.sdd-preview-content table tbody tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.sdd-preview-content table tbody tr:hover {
+  background-color: #f1f5f9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.sdd-preview-content table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.sdd-preview-content table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+.sdd-preview-content table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sdd-preview-content table td {
+  color: #475569;
+  vertical-align: top;
+}
+
+.sdd-preview-content table tbody tr:hover td {
+  color: #1e293b;
+}
+
+/* Images */
+.sdd-preview-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 1.5em auto;
+  display: block;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sdd-preview-content figure {
+  margin: 1.5em 0;
+  text-align: center;
+}
+
+.sdd-preview-content figcaption {
+  margin-top: 0.5em;
+  font-size: 0.9em;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Horizontal Rules */
+.sdd-preview-content hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2em 0;
+}
+
+/* Text Alignment */
+.sdd-preview-content .text-left {
+  text-align: left;
+}
+
+.sdd-preview-content .text-center {
+  text-align: center;
+}
+
+.sdd-preview-content .text-right {
+  text-align: right;
+}
+
+/* Text Colors */
+.sdd-preview-content .text-red {
+  color: #dc2626;
+}
+
+.sdd-preview-content .text-blue {
+  color: #2563eb;
+}
+
+.sdd-preview-content .text-green {
+  color: #16a34a;
+}
+
+/* Background Colors */
+.sdd-preview-content .bg-gray {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+}
+
+.sdd-preview-content .bg-yellow {
+  background-color: #fef3c7;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+}
+
+/* Spacing */
+.sdd-preview-content > *:first-child {
+  margin-top: 0;
+}
+
+.sdd-preview-content > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Indentation */
+.sdd-preview-content .indent {
+  padding-left: 2em;
+}
+
+/* Mark/Highlight */
+.sdd-preview-content mark {
+  background-color: #fef3c7;
+  padding: 0.1em 0.2em;
+  border-radius: 0.2em;
+}
+
+/* Subscript and Superscript */
+.sdd-preview-content sub,
+.sdd-preview-content sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.sdd-preview-content sup {
+  top: -0.5em;
+}
+
+.sdd-preview-content sub {
+  bottom: -0.25em;
+}
+
+/* Definition Lists */
+.sdd-preview-content dl {
+  margin: 1em 0;
+}
+
+.sdd-preview-content dt {
+  font-weight: 700;
+  margin-top: 1em;
+}
+
+.sdd-preview-content dd {
+  margin-left: 2em;
+  margin-bottom: 0.5em;
+}
+
+/* CKEditor Content Styles - Ensure headers are formatted well */
+.ck-content {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #374151;
+  min-height: 400px;
+}
+
+/* CKEditor Headings - Proper formatting */
+.ck-content h1,
+.ck-content h2,
+.ck-content h3,
+.ck-content h4,
+.ck-content h5,
+.ck-content h6 {
+  font-weight: 700;
+  color: #111827;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  line-height: 1.3;
+  page-break-after: avoid;
+}
+
+.ck-content h1 {
+  font-size: 2em;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5em;
+  margin-top: 0;
+  color: #8B1A1A;
+}
+
+.ck-content h2 {
+  font-size: 1.75em;
+  margin-top: 2em;
+  color: #8B1A1A;
+}
+
+.ck-content h3 {
+  font-size: 1.5em;
+  margin-top: 1.5em;
+  color: #333333;
+}
+
+.ck-content h4 {
+  font-size: 1.25em;
+  margin-top: 1.25em;
+  color: #555555;
+}
+
+.ck-content h5 {
+  font-size: 1.1em;
+  margin-top: 1em;
+}
+
+.ck-content h6 {
+  font-size: 1em;
+  margin-top: 1em;
+}
+
+/* Ensure first heading doesn't have top margin */
+.ck-content > h1:first-child,
+.ck-content > h2:first-child,
+.ck-content > h3:first-child,
+.ck-content > h4:first-child {
+  margin-top: 0;
+}
+
+/* CKEditor Paragraphs */
+.ck-content p {
+  margin-bottom: 1em;
+  text-align: justify;
+  line-height: 1.8;
+}
+
+.ck-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* CKEditor Lists */
+.ck-content ul,
+.ck-content ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.ck-content li {
+  margin: 0.5em 0;
+  line-height: 1.7;
+}
+
+/* CKEditor Strong and Emphasis */
+.ck-content strong,
+.ck-content b {
+  font-weight: 700;
+  color: #111827;
+}
+
+.ck-content em,
+.ck-content i {
+  font-style: italic;
+}
+
+/* CKEditor Tables - Sleek and Elegant */
+.ck-content table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2em 0;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.ck-content table th,
+.ck-content table td {
+  padding: 1em 1.25em;
+  text-align: left;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.6);
+  transition: all 0.2s ease;
+}
+
+.ck-content table th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  font-weight: 600;
+  color: #1e293b;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e2e8f0;
+  position: relative;
+}
+
+.ck-content table th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.ck-content table th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.ck-content table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.ck-content table tbody tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.ck-content table tbody tr:hover {
+  background-color: #f1f5f9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.ck-content table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.ck-content table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+.ck-content table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ck-content table td {
+  color: #475569;
+  vertical-align: top;
+}
+
+.ck-content table tbody tr:hover td {
+  color: #1e293b;
+}
+
+/* CKEditor Blockquotes */
+.ck-content blockquote {
+  border-left: 4px solid #dc2626;
+  padding-left: 1em;
+  margin: 1.5em 0;
+  color: #6b7280;
+  font-style: italic;
+  background-color: #f9fafb;
+  padding: 1em;
+}
+
+/* CKEditor Code */
+.ck-content code {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+  color: #dc2626;
+}
+
+.ck-content pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 1em;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5em 0;
+  line-height: 1.6;
+}
+
+.ck-content pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+}
+

@@ -1,0 +1,929 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id                   String          @id @default(uuid())
+  name                 String
+  description          String
+  userId               String          // ID of the user who owns this project
+  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status               String?         // DocumentStatus: DRAFT, REVIEW, APPROVED, PUBLISHED, ARCHIVED
+  version              String?         // Document version (e.g., "1.0", "1.1")
+  selectedSectionIds   String?         // JSON array of section IDs
+  customSections       String?         // JSON array of custom sections
+  customSectionSubsections String?    // JSON object of custom subsections for default sections
+  coverPageSettings    String?         // JSON object of cover page settings
+  documentOwner        String?         // Email of document owner
+  documentClassification String?       // e.g., "CONFIDENTIAL", "INTERNAL", "PUBLIC"
+  publishedAt          DateTime?       // When document was published
+  publishedBy          String?         // Email of person who published
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  artifacts            ProjectArtifact[]
+  sections             GeneratedSection[]
+  adrs                 ADR[]
+  umlDiagrams          UMLDiagram[]
+  architectureDiagrams ArchitectureDiagram[]
+  approvers            Approver[]
+  approvals            Approval[]
+  permissions          ProjectPermission[]
+  comments             Comment[]
+  activityFeeds        ActivityFeed[]
+  auditLogs            AuditLog[]
+  integrations         Integration[]
+  integrationMappings  IntegrationMapping[]
+  architectureRepositories ArchitectureRepository[]
+  baselines            Baseline[]
+  complianceChecks     ComplianceCheck[]
+  governanceWorkflows  GovernanceWorkflow[]
+  
+  @@index([createdAt])
+  @@index([status])
+  @@index([documentOwner])
+  @@index([userId])
+}
+
+model ProjectArtifact {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  fileName    String
+  fileType    String
+  fileSize    Int
+  fileContent String   // Base64 encoded or JSON string
+  artifactType ArtifactType
+  uploadedAt  DateTime @default(now())
+  
+  @@index([projectId])
+}
+
+model GeneratedSection {
+  id             String            @id @default(uuid())
+  projectId      String
+  project        Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sectionId      String            // e.g., 'executive', 'business', etc.
+  sectionTitle   String
+  content        String
+  parentSectionId String?          // ID of parent section if this is a sub-section
+  parentSection  GeneratedSection? @relation("SectionHierarchy", fields: [parentSectionId], references: [id], onDelete: Cascade)
+  subSections    GeneratedSection[] @relation("SectionHierarchy")
+  order          Int?              // Order within parent section or top-level sections
+  generatedAt    DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  
+  @@unique([projectId, sectionId, parentSectionId])
+  @@index([projectId])
+  @@index([parentSectionId])
+}
+
+enum ArtifactType {
+  BRD           // Business Requirements Document
+  FLOW          // Process Flow
+  SEQUENCE      // Sequence Diagram
+  ARCHITECTURE  // Architecture Diagram
+  TECHNICAL_SPEC // Technical Specification
+  OTHER         // Other documents
+}
+
+enum ADRStatus {
+  proposed
+  accepted
+  deprecated
+  superseded
+}
+
+model ADR {
+  id           String   @id @default(uuid())
+  projectId    String
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  number       Int
+  title        String
+  status       ADRStatus
+  date         DateTime
+  context      String
+  decision     String
+  consequences String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([projectId, number])
+  @@index([projectId])
+}
+
+model UMLDiagram {
+  id          String         @id @default(uuid())
+  projectId   String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  diagramType UMLDiagramType
+  content     String         // The source code/content of the diagram
+  format      String         // e.g., 'class', 'sequence', 'activity', etc.
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  @@index([projectId])
+  @@index([diagramType])
+}
+
+enum UMLDiagramType {
+  PLANTUML
+  MERMAID
+  JSON
+  XML
+  DIAGRAMS_PYTHON
+  GRAPHVIZ_DOT
+  STRUCTURIZR_DSL
+  C4_PLANTUML
+  C4_MERMAID
+  ARCHIMATE
+  D2
+  KROKI
+  OTHER
+}
+
+model ArchitectureDiagram {
+  id              String                 @id @default(uuid())
+  projectId       String
+  project         Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  diagramType     ArchitectureDiagramType
+  architectureState ArchitectureState    @default(AS_IS)
+  layer           ArchitectureLayer?
+  canvasData      String                 // JSON string of CanvasData
+  elements        String                 // JSON array of element IDs
+  version         String                 @default("1.0")
+  importedFrom    String?                // e.g., "VISIO", "DRAWIO", "LUCIDCHART"
+  importSource    String?                // Original file path or URL
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  
+  @@index([projectId])
+  @@index([diagramType])
+  @@index([architectureState])
+  @@index([layer])
+}
+
+enum ArchitectureDiagramType {
+  BPMN
+  UML
+  ARCHIMATE
+  C4
+  DATA_FLOW
+  INTEGRATION
+  BUSINESS_PROCESS
+  APPLICATION_ARCHITECTURE
+  TECHNOLOGY_INFRASTRUCTURE
+  CUSTOM
+}
+
+enum ArchitectureState {
+  AS_IS
+  TO_BE
+  SCENARIO
+}
+
+enum ArchitectureLayer {
+  BUSINESS
+  APPLICATION
+  DATA
+  TECHNOLOGY
+  SOLUTION
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SIGNED
+}
+
+model Approver {
+  id          String    @id @default(uuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  email       String
+  name        String
+  role        String?   // e.g., "Technical Lead", "Business Owner", "Architect"
+  addedAt     DateTime  @default(now())
+  addedBy     String?   // Email of person who added this approver
+  approvals   Approval[]
+  
+  @@unique([projectId, email])
+  @@index([projectId])
+  @@index([email])
+}
+
+model Approval {
+  id          String         @id @default(uuid())
+  projectId   String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  approverId  String
+  approver    Approver       @relation(fields: [approverId], references: [id], onDelete: Cascade)
+  status      ApprovalStatus @default(PENDING)
+  signature   String?        // Base64 encoded signature image or text signature
+  comments    String?        // Optional comments from approver
+  signedAt    DateTime?      // When signature was added
+  approvedAt  DateTime?      // When approval was given
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  @@unique([projectId, approverId])
+  @@index([projectId])
+  @@index([approverId])
+  @@index([status])
+}
+
+// User and RBAC models
+enum UserRole {
+  ADMIN
+  ARCHITECT
+  REVIEWER
+  VIEWER
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String
+  password    String   // Hashed password
+  role        UserRole @default(VIEWER)
+  department  String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastLoginAt DateTime?
+  
+  projects           Project[]
+  projectPermissions ProjectPermission[]
+  comments           Comment[]
+  notifications      Notification[]
+  activityFeeds      ActivityFeed[]
+  auditLogs          AuditLog[]
+  
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+}
+
+model ProjectPermission {
+  id         String   @id @default(uuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissions String  // JSON array of Permission strings
+  grantedAt  DateTime @default(now())
+  grantedBy  String   // Email of user who granted permission
+  
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+// Collaboration models
+model Comment {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sectionId       String?
+  artifactId      String?
+  parentCommentId String?
+  parentComment   Comment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         Comment[] @relation("CommentReplies")
+  content         String
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  mentions        String?  // JSON array of user emails
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  editedAt        DateTime?
+  isResolved      Boolean  @default(false)
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  
+  @@index([projectId])
+  @@index([sectionId])
+  @@index([artifactId])
+  @@index([authorId])
+  @@index([isResolved])
+}
+
+enum NotificationType {
+  COMMENT_MENTION
+  COMMENT_REPLY
+  COMMENT_RESOLVED
+  APPROVAL_REQUESTED
+  APPROVAL_APPROVED
+  APPROVAL_REJECTED
+  STATUS_CHANGED
+  PROJECT_SHARED
+  SECTION_GENERATED
+  ARTIFACT_UPLOADED
+  PROJECT_UPDATED
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  projectId String?
+  sectionId String?
+  commentId String?
+  approvalId String?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  actionUrl String?
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([projectId])
+}
+
+enum ActivityAction {
+  PROJECT_CREATED
+  PROJECT_UPDATED
+  PROJECT_DELETED
+  PROJECT_SHARED
+  SECTION_CREATED
+  SECTION_UPDATED
+  SECTION_DELETED
+  SECTION_GENERATED
+  ARTIFACT_UPLOADED
+  ARTIFACT_DELETED
+  COMMENT_ADDED
+  COMMENT_EDITED
+  COMMENT_DELETED
+  COMMENT_RESOLVED
+  APPROVAL_REQUESTED
+  APPROVAL_APPROVED
+  APPROVAL_REJECTED
+  STATUS_CHANGED
+  USER_ADDED
+  USER_REMOVED
+}
+
+model ActivityFeed {
+  id          String        @id @default(uuid())
+  projectId   String
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      ActivityAction
+  entityType  String        // 'project' | 'section' | 'artifact' | 'comment' | 'approval' | 'status'
+  entityId    String
+  entityName  String?
+  description String
+  metadata    String?       // JSON object
+  createdAt   DateTime      @default(now())
+  
+  @@index([projectId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+// Enhanced Audit Logging
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  PROJECT_CREATED
+  PROJECT_UPDATED
+  PROJECT_DELETED
+  PROJECT_VIEWED
+  PROJECT_EXPORTED
+  SECTION_CREATED
+  SECTION_UPDATED
+  SECTION_DELETED
+  SECTION_GENERATED
+  ARTIFACT_UPLOADED
+  ARTIFACT_DELETED
+  ARTIFACT_VIEWED
+  COMMENT_ADDED
+  COMMENT_EDITED
+  COMMENT_DELETED
+  APPROVAL_REQUESTED
+  APPROVAL_APPROVED
+  APPROVAL_REJECTED
+  STATUS_CHANGED
+  USER_CREATED
+  USER_UPDATED
+  USER_DELETED
+  ROLE_CHANGED
+  PERMISSION_GRANTED
+  PERMISSION_REVOKED
+  ACCESS_DENIED
+  EXPORT_GENERATED
+  API_CALLED
+  CONFIGURATION_CHANGED
+}
+
+enum AuditEntityType {
+  USER
+  PROJECT
+  SECTION
+  ARTIFACT
+  COMMENT
+  APPROVAL
+  PERMISSION
+  ROLE
+  SYSTEM
+}
+
+enum AuditSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model AuditLog {
+  id          String         @id @default(uuid())
+  timestamp   DateTime       @default(now())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userEmail   String
+  userName    String
+  action      AuditAction
+  entityType  AuditEntityType
+  entityId    String
+  entityName  String?
+  projectId   String?
+  project     Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  ipAddress   String?
+  userAgent   String?
+  changes     String?        // JSON array of AuditChange objects
+  metadata    String?        // JSON object
+  severity    AuditSeverity  @default(MEDIUM)
+  result      String         // 'SUCCESS' | 'FAILURE' | 'PARTIAL'
+  errorMessage String?
+  
+  @@index([timestamp])
+  @@index([userId])
+  @@index([projectId])
+  @@index([action])
+  @@index([entityType])
+  @@index([severity])
+  @@index([result])
+}
+
+// Integration models
+enum IntegrationType {
+  SHAREPOINT
+  JIRA
+  CONFLUENCE
+  AZURE_DEVOPS
+  SLACK
+  TEAMS
+  EMAIL
+  WEBHOOK
+  REST_API
+  GRAPHQL_API
+}
+
+model Integration {
+  id              String          @id @default(uuid())
+  type            IntegrationType
+  name            String
+  description     String?
+  isActive        Boolean         @default(true)
+  config          String          // JSON object
+  credentials     String?         // Encrypted JSON object
+  projectId       String?
+  project         Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  lastSyncAt      DateTime?
+  lastSyncStatus  String?         // 'SUCCESS' | 'FAILURE'
+  lastSyncError   String?
+  
+  mappings        IntegrationMapping[]
+  
+  @@index([type])
+  @@index([isActive])
+  @@index([projectId])
+}
+
+model IntegrationMapping {
+  id            String      @id @default(uuid())
+  projectId     String
+  project       Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  externalId    String      // ID in external system
+  externalType  String      // Type in external system
+  syncMetadata  String?     // JSON object
+  lastSyncedAt  DateTime    @default(now())
+  
+  @@unique([integrationId, externalId])
+  @@index([projectId])
+  @@index([integrationId])
+}
+
+// Repository & Governance models
+model ArchitectureRepository {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  metadata        String  // JSON object containing metadata
+  objectType      String  // 'diagram', 'component', 'relationship', 'pattern', etc.
+  objectId        String  // ID of the object (diagram, component, etc.)
+  projectId       String?
+  project         Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  tags            String? // JSON array of tags
+  relationships   String? // JSON array of relationship metadata
+  graphData       String? // Graph DB data (JSON)
+  sqlData         String? // SQL metadata (JSON)
+  isReusable      Boolean  @default(true)
+  reuseCount      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?  // Email of creator
+  versions        ArchitectureVersion[]
+  baselineItems   BaselineItem[]
+  complianceChecks ComplianceCheck[]
+  governanceWorkflows GovernanceWorkflow[]
+  
+  @@index([objectType])
+  @@index([objectId])
+  @@index([projectId])
+  @@index([isReusable])
+  @@index([createdAt])
+}
+
+model ArchitectureVersion {
+  id              String   @id @default(uuid())
+  repositoryId    String
+  repository      ArchitectureRepository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  version         String   // e.g., "1.0", "1.1", "2.0"
+  description     String?
+  metadata        String   // JSON object - snapshot of metadata at this version
+  content         String?  // Snapshot of content/data
+  createdBy       String?  // Email of creator
+  createdAt       DateTime @default(now())
+  baselineId      String?
+  baseline        Baseline? @relation(fields: [baselineId], references: [id], onDelete: SetNull)
+  baselineItems   BaselineItem[]
+  
+  @@unique([repositoryId, version])
+  @@index([repositoryId])
+  @@index([baselineId])
+  @@index([createdAt])
+}
+
+model Baseline {
+  id              String   @id @default(uuid())
+  name            String   // e.g., "Architecture Release 1.0"
+  description     String?
+  releaseVersion  String   // e.g., "1.0"
+  projectId       String?
+  project         Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  baselineItems   BaselineItem[]
+  versions        ArchitectureVersion[]
+  createdAt       DateTime @default(now())
+  createdBy       String?  // Email of creator
+  isActive        Boolean  @default(true)
+  
+  @@index([projectId])
+  @@index([releaseVersion])
+  @@index([isActive])
+}
+
+model BaselineItem {
+  id              String   @id @default(uuid())
+  baselineId      String
+  baseline        Baseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+  repositoryId    String
+  repository      ArchitectureRepository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  versionId       String?
+  version         ArchitectureVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  snapshot        String   // JSON snapshot of the item at baseline time
+  createdAt       DateTime @default(now())
+  
+  @@unique([baselineId, repositoryId])
+  @@index([baselineId])
+  @@index([repositoryId])
+  @@index([versionId])
+}
+
+model ArchitectureStandard {
+  id              String   @id @default(uuid())
+  name            String
+  type            StandardType
+  category        String?  // e.g., "Security", "Performance", "Integration"
+  description     String
+  content         String   // JSON or text content
+  framework       String?  // e.g., "TOGAF", "SABSA", "Zachman"
+  principle       String?  // JSON object for principles
+  referenceModel  String?  // JSON object for reference models
+  pattern         String?  // JSON object for patterns
+  complianceRules String? // JSON array of compliance rules
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?  // Email of creator
+  complianceChecks ComplianceCheck[]
+  
+  @@index([type])
+  @@index([framework])
+  @@index([isActive])
+}
+
+enum StandardType {
+  PRINCIPLE
+  REFERENCE_MODEL
+  PATTERN
+  COMPLIANCE_RULE
+  BEST_PRACTICE
+}
+
+model ComplianceCheck {
+  id              String   @id @default(uuid())
+  standardId      String
+  standard        ArchitectureStandard @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  projectId       String?
+  project         Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  repositoryId    String?
+  repository      ArchitectureRepository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  checkType       ComplianceCheckType
+  status          ComplianceStatus @default(PENDING)
+  findings        String?  // JSON array of findings
+  recommendations String?  // JSON array of recommendations
+  checkedBy       String?  // Email of person who ran the check
+  checkedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([standardId])
+  @@index([projectId])
+  @@index([repositoryId])
+  @@index([status])
+  @@index([checkType])
+}
+
+enum ComplianceCheckType {
+  TOGAF
+  SABSA
+  ZACHMAN
+  CUSTOM
+}
+
+enum ComplianceStatus {
+  PENDING
+  PASSED
+  FAILED
+  WARNING
+  NOT_APPLICABLE
+}
+
+model GovernanceWorkflow {
+  id              String   @id @default(uuid())
+  name            String
+  type            WorkflowType
+  projectId       String?
+  project         Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  repositoryId    String?
+  repository      ArchitectureRepository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  status          WorkflowStatus @default(DRAFT)
+  currentStage    String?  // Current stage in workflow
+  stages          String   // JSON array of workflow stages
+  approvers       String   // JSON array of approver emails
+  approvals       WorkflowApproval[]
+  comments        String?  // JSON array of comments
+  submittedBy     String?  // Email of submitter
+  submittedAt     DateTime?
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([type])
+  @@index([projectId])
+  @@index([repositoryId])
+  @@index([status])
+}
+
+enum WorkflowType {
+  ARCHITECTURE_REVIEW
+  STANDARD_APPROVAL
+  COMPONENT_REUSE
+  PATTERN_APPROVAL
+  COMPLIANCE_REVIEW
+}
+
+enum WorkflowStatus {
+  DRAFT
+  SUBMITTED
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  REVISED
+}
+
+model WorkflowApproval {
+  id              String   @id @default(uuid())
+  workflowId      String
+  workflow        GovernanceWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  approverEmail   String
+  approverName    String?
+  role            String?  // e.g., "ARB Member", "Lead Architect"
+  status          ApprovalStatus @default(PENDING)
+  comments        String?
+  approvedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([workflowId, approverEmail])
+  @@index([workflowId])
+  @@index([approverEmail])
+  @@index([status])
+}
+
+// Architecture Knowledge Base models
+model ArchitecturePattern {
+  id              String   @id @default(uuid())
+  name            String
+  category        PatternCategory
+  description     String
+  problem         String?  // Problem this pattern solves
+  solution        String   // Solution description
+  benefits        String?  // JSON array of benefits
+  tradeoffs       String?  // JSON array of tradeoffs
+  useCases        String?  // JSON array of use cases
+  examples        String?  // JSON array of examples
+  diagram         String?  // Diagram data or reference
+  relatedPatterns String?  // JSON array of related pattern IDs
+  createdBy       String?  // Email of creator
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([category])
+  @@index([name])
+  @@index([createdAt])
+}
+
+enum PatternCategory {
+  MICROSERVICES
+  EVENT_DRIVEN
+  API_GATEWAY
+  ETL
+  CQRS
+  SAGA
+  CIRCUIT_BREAKER
+  SERVICE_MESH
+  STRANGLER_FIG
+  BACKEND_FOR_FRONTEND
+  OTHER
+}
+
+model ReferenceArchitecture {
+  id              String   @id @default(uuid())
+  name            String
+  domain          ArchitectureDomain
+  description     String
+  overview        String   // High-level overview
+  components      String   // JSON array of component descriptions
+  layers          String?  // JSON array of architecture layers
+  patterns        String?  // JSON array of pattern IDs used
+  technologies    String?  // JSON array of technologies
+  bestPractices   String?  // JSON array of best practices
+  diagrams        String?  // JSON array of diagram references
+  useCases        String?  // JSON array of use cases
+  caseStudies     String?  // JSON array of case studies
+  createdBy       String?  // Email of creator
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([domain])
+  @@index([name])
+  @@index([createdAt])
+}
+
+enum ArchitectureDomain {
+  CLOUD_NATIVE
+  BANKING
+  ERP_INTEGRATION
+  E_COMMERCE
+  FINANCIAL_SERVICES
+  HEALTHCARE
+  RETAIL
+  MANUFACTURING
+  TELECOMMUNICATIONS
+  GOVERNMENT
+  EDUCATION
+  OTHER
+}
+
+model ReusableComponent {
+  id              String   @id @default(uuid())
+  name            String
+  componentType   ComponentType
+  description     String
+  category        String?  // e.g., "Payment Gateway", "Authentication Service"
+  vendor          String?  // Vendor name if applicable
+  version         String?  // Component version
+  specifications  String?  // JSON object with technical specifications
+  capabilities    String?  // JSON array of capabilities
+  integrations    String?  // JSON array of integration points
+  dependencies    String?  // JSON array of dependencies
+  documentation   String?  // Documentation URL or content
+  examples        String?  // JSON array of usage examples
+  reuseCount      Int      @default(0)
+  lastUsedAt      DateTime?
+  createdBy       String?  // Email of creator
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([componentType])
+  @@index([category])
+  @@index([vendor])
+  @@index([name])
+  @@index([createdAt])
+}
+
+enum ComponentType {
+  APPLICATION
+  API
+  DATABASE
+  VENDOR
+  SERVICE
+  LIBRARY
+  FRAMEWORK
+  MIDDLEWARE
+  INFRASTRUCTURE
+  OTHER
+}
+
+model Tag {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  category        TagCategory
+  description     String?
+  color           String?  // Hex color code for UI
+  createdAt       DateTime @default(now())
+  tagMappings     TagMapping[]
+  
+  @@index([category])
+  @@index([name])
+}
+
+enum TagCategory {
+  DOMAIN
+  CAPABILITY
+  SOLUTION
+  TECHNOLOGY
+  PATTERN
+  ARCHITECTURE
+  OTHER
+}
+
+model TagMapping {
+  id                    String   @id @default(uuid())
+  tagId                 String
+  tag                   Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  entityType            EntityType
+  entityId              String   // ID of the entity (pattern, reference architecture, or reusable component)
+  createdAt             DateTime @default(now())
+  
+  @@unique([tagId, entityType, entityId])
+  @@index([tagId])
+  @@index([entityType, entityId])
+}
+
+enum EntityType {
+  PATTERN
+  REFERENCE_ARCHITECTURE
+  REUSABLE_COMPONENT
+}
+
+model KnowledgeBaseFile {
+  id                    String   @id @default(uuid())
+  entityType            EntityType
+  entityId              String   // ID of the pattern, reference architecture, or reusable component
+  fileName              String
+  fileType              String
+  fileSize              Int
+  fileContent           String   // Base64 encoded or text content
+  description           String?  // Optional description of the file
+  uploadedBy            String?  // Email of uploader
+  uploadedAt            DateTime @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([uploadedAt])
+}

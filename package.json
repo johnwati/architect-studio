@@ -1,0 +1,139 @@
+{
+  "name": "architect-studio",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "Equity Bank",
+  "description": "Architect Studio - AI-Powered Solution Design Documentation Platform for Equity Bank",
+  "main": "electron-dist/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:build": "npm run build && npm run electron:compile",
+    "electron:compile": "tsc -p tsconfig.electron.json",
+    "electron:pack": "npm run electron:build && electron-builder --dir",
+    "electron:dist": "npm run electron:build && electron-builder",
+    "electron:dist:mac": "npm run electron:build && electron-builder --mac",
+    "electron:dist:win": "npm run electron:build && electron-builder --win",
+    "electron:dist:linux": "npm run electron:build && electron-builder --linux"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@ckeditor/ckeditor5-alignment": "^47.2.0",
+    "@ckeditor/ckeditor5-autoformat": "^47.2.0",
+    "@ckeditor/ckeditor5-basic-styles": "^47.2.0",
+    "@ckeditor/ckeditor5-block-quote": "^47.2.0",
+    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+    "@ckeditor/ckeditor5-code-block": "^47.2.0",
+    "@ckeditor/ckeditor5-editor-classic": "^47.2.0",
+    "@ckeditor/ckeditor5-essentials": "^47.2.0",
+    "@ckeditor/ckeditor5-find-and-replace": "^47.2.0",
+    "@ckeditor/ckeditor5-font": "^47.2.0",
+    "@ckeditor/ckeditor5-heading": "^47.2.0",
+    "@ckeditor/ckeditor5-image": "^47.1.0",
+    "@ckeditor/ckeditor5-indent": "^47.2.0",
+    "@ckeditor/ckeditor5-link": "^47.2.0",
+    "@ckeditor/ckeditor5-list": "^47.2.0",
+    "@ckeditor/ckeditor5-paragraph": "^47.2.0",
+    "@ckeditor/ckeditor5-react": "^11.0.0",
+    "@ckeditor/ckeditor5-source-editing": "^47.2.0",
+    "@ckeditor/ckeditor5-table": "^47.2.0",
+    "@ckeditor/ckeditor5-typing": "^47.2.0",
+    "@ckeditor/ckeditor5-undo": "^47.2.0",
+    "@ckeditor/ckeditor5-upload": "^47.2.0",
+    "@ckeditor/ckeditor5-widget": "^47.2.0",
+    "@joint/core": "^4.2.0-beta.3",
+    "@pdftron/webviewer": "^11.8.0",
+    "@prisma/client": "^6.18.0",
+    "@tinymce/tinymce-react": "^6.3.0",
+    "dexie": "^4.2.1",
+    "docx": "^9.5.1",
+    "file-saver": "^2.0.5",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
+    "jszip": "^3.10.1",
+    "lucide-react": "^0.263.1",
+    "marked": "^16.4.1",
+    "mxgraph": "^4.2.2",
+    "prisma": "^6.18.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
+    "sql.js": "^1.13.0",
+    "sqlite3": "^5.1.7",
+    "tinymce": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/file-saver": "^2.0.7",
+    "@types/node": "^24.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/sql.js": "^1.4.9",
+    "@vitejs/plugin-react": "^4.0.0",
+    "autoprefixer": "^10.4.14",
+    "concurrently": "^9.2.1",
+    "electron": "^39.1.0",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.25.12",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.0.0",
+    "vite": "^4.3.0",
+    "wait-on": "^9.0.1"
+  },
+  "build": {
+    "appId": "com.equitybank.architect-studio",
+    "productName": "Architect Studio",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron-dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "compression": "normal",
+    "npmRebuild": false,
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64"]
+        }
+      ],
+      "icon": "build/icon.icns",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "category": "Office",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
