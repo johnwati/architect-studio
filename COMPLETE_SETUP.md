@@ -58,11 +58,12 @@ src/
 
 ### 🚀 How to Use
 
-#### 1. Setup API Key
+#### 1. Setup API Keys
 
-Add your Claude API key to `.env`:
+Add your API keys to `.env`:
 ```bash
 VITE_ANTHROPIC_API_KEY=sk-ant-your-key-here
+VITE_TINYMCE_API_KEY=your-tinymce-api-key   # optional but recommended
 ```
 
 #### 2. Start Development Server

@@ -24,12 +24,15 @@ npm install
 
 ### Configuration
 
-1. Add your Claude API key to `.env`:
+1. Add required API keys to `.env`:
 ```bash
 VITE_ANTHROPIC_API_KEY=sk-ant-your-key-here
+VITE_TINYMCE_API_KEY=your-tinymce-api-key   # optional but recommended
 ```
 
 Get your API key: https://console.anthropic.com/
+
+Get a TinyMCE key (free tier available): https://www.tiny.cloud/
 
 ### Run
 

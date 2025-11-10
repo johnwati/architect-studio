@@ -2,15 +2,17 @@
 
 ## 🚀 Get Architect Studio Running in 3 Steps
 
-### Step 1: Add Your Claude API Key
+### Step 1: Add Your API Keys
 
 Edit the `.env` file and add your API key:
 
 ```bash
 VITE_ANTHROPIC_API_KEY=sk-ant-your-actual-key-here
+VITE_TINYMCE_API_KEY=your-tinymce-api-key   # optional but recommended
 ```
 
-**Get your key**: https://console.anthropic.com/
+**Get your Claude key**: https://console.anthropic.com/  
+**Get a TinyMCE key**: https://www.tiny.cloud/
 
 ### Step 2: Start the Server
 

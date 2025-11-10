@@ -19,6 +19,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({
   const editorRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const tinyMCEApiKey = import.meta.env.VITE_TINYMCE_API_KEY;
 
   return (
     <div>
@@ -40,7 +41,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({
         </div>
       )}
       <Editor
-        apiKey="389iepivkkmaq9e9esp8dwgg4m2hrnhr8ssgxr9xcysuonr9"
+        apiKey={tinyMCEApiKey}
         onInit={(evt, editor) => {
           editorRef.current = editor;
           setIsLoading(false);
@@ -51,6 +52,9 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({
         }}
         onFailure={(err) => {
           console.error('❌ TinyMCE failed to load:', err);
+          if (!tinyMCEApiKey) {
+            console.warn('ℹ️ TinyMCE API key not configured. Provide VITE_TINYMCE_API_KEY in .env for full editor features.');
+          }
           setHasError(true);
           setIsLoading(false);
         }}
